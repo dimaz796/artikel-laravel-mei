@@ -17,7 +17,14 @@
             <p>{{ $item->excerpt }}</p>
 
             <a href="/blog/{{ $item->slug }}" class="text-decoration-none">Read More..</a>
+            <a href="{{ route('artikel.edit', $item->id) }}">Edit</a>
+            <form action="{{ route('artikel.destroy', ['id' => $item->id]) }}" method="POST">
+                @csrf
+                @method('DELETE')
 
+                <!-- Tombol hapus atau tindakan lainnya -->
+                <button type="submit">Hapus</button>
+            </form>
         </article>
     @endforeach
 @endsection

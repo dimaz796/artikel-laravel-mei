@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,8 +22,13 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
     
+
         if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+            $user = DB::table('users')->where('username', $request->post('username'))->first();
+            
+            
+            $request->session()->put('id_user',$user->id);
+            $request->session()->put('name_user',$user->name);
     
             return redirect()->intended('/');
         }

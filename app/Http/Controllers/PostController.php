@@ -27,7 +27,7 @@ class PostController extends Controller
         $categories = Category::all();
         
         // Pass data ke view
-        return view('artikel/tambah', [
+        return view('artikel.tambah_artikel', [
             "title" => "Tambah Artikel",
             "posts" => Post::latest()->get(),
             "categories" => $categories // Pastikan variabel categories dipassing ke view
@@ -39,17 +39,29 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required|max:255',
-            'slug' => 'required|unique:posts',
-            'excerpt' => 'required',
-            'body' => 'required',
-            'category_id' => 'required|exists:categories,id',
-        ]);
+        // session()
+        $id_user = $request->session()->get('id_user');
 
-        Post::create($validatedData);
+        // $validatedData = $request->validate([
+        //     'title' => 'required|max:255',
+        //     'slug' => 'required|unique:posts',
+        //     'excerpt' => 'required',
+        //     'body' => 'required',
+        //     'category_id' => 'required|exists:categories,id',
+        //     'user_id' => $id_user,
+        // ]);
+        $data = [
+            'title' => $request->post('title'),
+            'slug' => $request->post('slug'),
+            'excerpt' => $request->post('excerpt'),
+            'body' => $request->post('body'),
+            'category_id' => $request->post('category_id'),
+            'user_id' => $id_user,
+        ];
 
-        return redirect()->route('posts.index')->with('success', 'Post created successfully!');
+        Post::create($data);
+
+        return redirect()->to('/blog')->with('success', 'Post created successfully!');
     }
 
     /**
@@ -66,9 +78,12 @@ class PostController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $post = Post::findOrFail($id);
+        $categories = Category::all();
+        $title = "Edit";
+        return view('artikel.edit', compact('post','categories','title'));
     }
 
     /**
@@ -76,7 +91,23 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $post = Post::findorFail($id);
+
+
+        $post->title = $request->input('title');
+        $post->slug = $request->input('slug');
+        $post->excerpt = $request->input('excerpt');
+        $post->body = $request->input('body');
+        $post->category_id = $request->input('category_id');
+        
+        // Simpan perubahan ke database
+        $post->save();
+if ($request->method() === 'PUT' || $request->method() === 'PATCH') {
+        // Proses pembaruan data
+        return redirect()->to('/blog')->with('success', 'Post created successfully!');
+    } else {
+        // Tangani kasus jika metode bukan PUT atau PATCH
+    }
     }
 
     /**
@@ -84,6 +115,13 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Temukan post yang akan dihapus
+        $post = Post::findOrFail($id);
+    
+        // Hapus post dari database
+        $post->delete();
+    
+        // Redirect dengan pesan sukses atau lakukan tindakan lain yang sesuai
+        return redirect()->to('/blog')->with('success', 'Post deleted successfully');
     }
 }

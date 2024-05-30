@@ -27,7 +27,12 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        // Ambil data kategori dari database
+        
+        // Pass data ke view
+        return view('category.tambah_category', [
+            "title" => "Tambah Artikel",
+        ]);
     }
 
     /**
@@ -35,7 +40,14 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = [
+            'name' => $request->post('category'),
+            'slug' => $request->post('slug'),
+        ];
+
+        Category::create($data);
+
+        return redirect()->to('/categories')->with('success', 'Post created successfully!');
     }
 
     /**
